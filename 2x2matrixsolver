@@ -1,1 +1,62 @@
+#This is the determinant calculator. Integral for the crammer rule.
+def det_of_matrix(matrix: list[list[float]]) -> float:
+    """Return the determinant of a 2x2 matrix.
 
+    Preconditions: len(matrix) == 2, len(matrix[0]) == 2 and len(matrix[1]) == 2
+
+    >>> det_of_matrix([[1,2], [3, 4]])
+    -2
+    >>> det_of_matrix([[1, 0], [0, 1]])
+    1
+    >>> det_of_matrix([[9, 5], [-1, -10]])
+    -85
+    """
+
+    if len(matrix) != 2 or len(matrix[0]) != 2 or len(matrix[1]) != 2:
+        raise ValueError("Matrix must be 2x2([[a, b], [c, d]])")
+    return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+
+#This is the actual application of crammer's rule here.
+def crammer_rule(matrix_1: list[float], matrix_2: list[list[float]]) -> list[list[float]]:
+    """Return the crammer matrices.
+
+    Preconditions: Just make sure matrix_1 is 2x1 and matrix_2 is the original matrix
+
+    >>> crammer_rule([1, 2], [[3, 4], [8, 0]])
+    [[1, 4], [2, 0]], [[3, 1], [8, 2]]
+    """
+    if len(matrix_2) != 2 or len(matrix_2[0]) != 2 or len(matrix_2[1]) != 2:
+        raise ValueError("Matrix must be 2x2([[a, b], [c, d]])")
+
+    if len(matrix_1) != 2:
+        raise ValueError("Matrix_1 must be a 2x1 matrix([a, b])")
+
+    crammer_left_matrix = []
+    row0 = []
+    row0.append(matrix_1[0])
+    row0.append(matrix_2[0][1])
+    row1 = []
+    row1.append(matrix_1[1])
+    row1.append(matrix_2[1][1])
+    crammer_left_matrix.append(row0)
+    crammer_left_matrix.append(row1)
+
+    crammer_right_matrix = []
+    row2 = []
+    row2.append(matrix_2[0][0])
+    row2.append(matrix_1[0])
+    row3 = []
+    row3.append(matrix_2[1][0])
+    row3.append(matrix_1[1])
+    crammer_right_matrix.append(row2)
+    crammer_right_matrix.append(row3)
+    
+    return crammer_left_matrix, crammer_right_matrix
+
+#This is to calculate the final solutions for the matrix.
+def solution(matrix_1, matrix_2) -> list[list[float]]:
+    crammer_left_matrix, crammer_right_matrix = crammer_rule(matrix_1, matrix_2)
+    det_main = det_of_matrix(matrix_2)
+    det_of_crammer_left = det_of_matrix(crammer_left_matrix)
+    det_of_crammer_right = det_of_matrix(crammer_right_matrix)
+    return (det_of_crammer_left/det_main), (det_of_crammer_right/det_main)
