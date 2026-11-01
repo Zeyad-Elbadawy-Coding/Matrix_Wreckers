@@ -1,1 +1,144 @@
+#This is the 3x3 matrix discombobulator(solves x, y and z)
+#First, we will import the 2x2 determinant from the other file.
+from matrix2x2solver import det_of_matrix
+
+#We will need the determinant function her so we can apply crammers rule to the 3x3 matrix
+
+def det_of_3x3_matrix(matrix: list[list[float]]) -> float:
+    """Return the determinant of 3x3 matrix.
+
+    Preconditions: len(matrix) == 3, len(matrix[0]) == 3, len(matrix[1]) == 3, and len(matrix[2]) == 3
+    """
+    if len(matrix) != 3 or len(matrix[0]) != 3 or len(matrix[1]) != 3 or len(matrix[2]) != 3:
+        raise ValueError("You must input a valid 3x3 matrix([[a, b, c], [d, e, f], [h, i, j]])")
+
+    #This is the first entry for the determinant of the 3x3 matrix.
+    submatrix_1 = []
+    row0 = []
+    row0.append(matrix[1][1])
+    row0.append(matrix[1][2])
+    row1 = []
+    row1.append(matrix[2][1])
+    row1.append(matrix[2][2])
+    submatrix_1.append(row0)
+    submatrix_1.append(row1)
+    det_1 = matrix[0][0] * det_of_matrix(submatrix_1)
+
+    #This is the second entry for the determinant of the 3x3 matrix.
+    submatrix_2 = []
+    row2 = []
+    row2.append(matrix[1][0])
+    row2.append(matrix[1][2])
+    row3 = []
+    row3.append(matrix[2][0])
+    row3.append(matrix[2][2])
+    submatrix_2.append(row2)
+    submatrix_2.append(row3)
+    det_2 = matrix[0][1] * (-det_of_matrix(submatrix_2))
+
+    #This is the final entry for the determinant of the 3x3 matrix.
+    submatrix_3 = []
+    row4 = []
+    row4.append(matrix[1][0])
+    row4.append(matrix[1][1])
+    row5 = []
+    row5.append(matrix[2][0])
+    row5.append(matrix[2][1])
+    submatrix_3.append(row4)
+    submatrix_3.append(row5)
+    det_3 = matrix[0][2] * det_of_matrix(submatrix_3)
+
+    return det_1 + det_2 + det_3
+
+#Building the crammer matrices.
+
+def crammer_rule(matrix_1: list[float], matrix_2: list[list[float]]) -> tuple:
+    """Return 3 matrices after applying the column replacement of crammer rule.
+
+    Preconditions: len(matrix_2) == 3, len(matrix_2[0]) == 3, len(matrix_2[1]) == 3, len(matrix_2[2]) == 3, len(matrix_1) == 3
+    """
+    if len(matrix_2) != 3 or len(matrix_2[0]) != 3 or len(matrix_2[1]) != 3 or len(matrix_2[2]) != 3 or len(matrix_1) != 3:
+        raise ValueError("Please input valid matrices")
+
+    #Left column is being replaced.
+    left_crammer = []
+    row0 = []
+    row0.append(matrix_1[0])
+    row0.append(matrix_2[0][1])
+    row0.append(matrix_2[0][2])
+    left_crammer.append(row0)
+    row1 = []
+    row1.append(matrix_1[1])
+    row1.append(matrix_2[1][1])
+    row1.append(matrix_2[1][2])
+    left_crammer.append(row1)
+    row2 = []
+    row2.append(matrix_1[2])
+    row2.append(matrix_2[2][1])
+    row2.append(matrix_2[2][2])
+    left_crammer.append(row2)
+
+    #Middle column is being replaced.
+    middle_crammer = []
+    row3 = []
+    row3.append(matrix_2[0][0])
+    row3.append(matrix_1[0])
+    row3.append(matrix_2[0][2])
+    middle_crammer.append(row3)
+    row4 = []
+    row4.append(matrix_2[1][0])
+    row4.append(matrix_1[1])
+    row4.append(matrix_2[1][2])
+    middle_crammer.append(row4)
+    row5 = []
+    row5.append(matrix_2[2][0])
+    row5.append(matrix_1[2])
+    row5.append(matrix_2[2][2])
+    middle_crammer.append(row5)
+
+    #Right column is being replaced.
+    right_crammer = []
+    row6 = []
+    row6.append(matrix_2[0][0])
+    row6.append(matrix_2[0][1])
+    row6.append(matrix_1[0])
+    right_crammer.append(row6)
+    row7 = []
+    row7.append(matrix_2[1][0])
+    row7.append(matrix_2[1][1])
+    row7.append(matrix_1[1])
+    right_crammer.append(row7)
+    row8 = []
+    row8.append(matrix_2[2][0])
+    row8.append(matrix_2[2][1])
+    row8.append(matrix_1[2])
+    right_crammer.append(row8)
+
+    return left_crammer, middle_crammer, right_crammer
+
+#Now for the satisfying part, lets put everything together and use crammer's rule to solve everything.
+
+def solution(matrix_1: list[float], matrix_2: list[list[float]]) -> tuple:
+    """Return solution aplly everything we have built into crammer's rule.
+
+    Preconditions: Same as crammer_rule()
+    """
+    if len(matrix_2) != 3 or len(matrix_2[0]) != 3 or len(matrix_2[1]) != 3 or len(matrix_2[2]) != 3 or len(matrix_1) != 3:
+        raise ValueError("Please input valid matrices")
+
+    #Eliminating edge case where determinant is 0
+    det_main = det_of_3x3_matrix(matrix_2)
+    if det_main == 0:
+        raise ValueError("This matrix cannot be computed due to a 0 determinant")
+
+    #Real solving begins here.
+
+    left_crammer, middle_crammer, right_crammer = crammer_rule(matrix_1, matrix_2)
+    x = det_of_3x3_matrix(left_crammer) / det_main
+    y = det_of_3x3_matrix(middle_crammer) / det_main
+    z = det_of_3x3_matrix(right_crammer) / det_main
+
+    return x, y, z
+    
+    
 
